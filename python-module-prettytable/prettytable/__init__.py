@@ -1,9 +1,11 @@
-# Copyright (c) 2009-2014 Luke Maurits <luke@maurits.id.au>
+# Copyright (c) 2009-2014, Luke Maurits <luke@maurits.id.au>
 # All rights reserved.
 # With contributions from:
-#  * Chris Clark
+# * Chris Clark
 #  * Klein Stephane
 #  * John Filleau
+# PTable is forked from original Google Code page in April, 2015, and now
+# maintained by Kane Blueriver <kxxoling@gmail.com>.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,3 +29,9 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+__version__ = "0.9.2"
+
+from .prettytable import PrettyTable
+from .prettytable import ALL, HEADER, MSWORD_FRIENDLY, NONE
+from .factory import from_csv, from_db_cursor, from_html, from_html_one

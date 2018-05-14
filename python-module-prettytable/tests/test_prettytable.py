@@ -1,32 +1,30 @@
+#!/usr/bin/env python
 # coding=UTF-8
 
-from prettytable import *
+from prettytable import PrettyTable
+from prettytable import ALL, HEADER, MSWORD_FRIENDLY, NONE
+from prettytable import from_csv, from_db_cursor, from_html, from_html_one
 
-import sys
-py3k = sys.version_info[0] >= 3
+from prettytable._compact import StringIO
 try:
     import sqlite3
     _have_sqlite = True
 except ImportError:
     _have_sqlite = False
-if py3k:
-    import io as StringIO
-else:
-    import StringIO
+
 from math import pi, e, sqrt
 import unittest
 
-class BuildEquivelanceTest(unittest.TestCase):
 
+class BuildEquivelanceTest(unittest.TestCase):
     """Make sure that building a table row-by-row and column-by-column yield the same results"""
 
     def setUp(self):
-
         # Row by row...
         self.row = PrettyTable()
         self.row.field_names = ["City name", "Area", "Population", "Annual Rainfall"]
-        self.row.add_row(["Adelaide",1295, 1158259, 600.5])
-        self.row.add_row(["Brisbane",5905, 1857594, 1146.4])
+        self.row.add_row(["Adelaide", 1295, 1158259, 600.5])
+        self.row.add_row(["Brisbane", 5905, 1857594, 1146.4])
         self.row.add_row(["Darwin", 112, 120900, 1714.7])
         self.row.add_row(["Hobart", 1357, 205556, 619.5])
         self.row.add_row(["Sydney", 2058, 4336374, 1214.8])
@@ -35,41 +33,38 @@ class BuildEquivelanceTest(unittest.TestCase):
 
         # Column by column...
         self.col = PrettyTable()
-        self.col.add_column("City name",["Adelaide","Brisbane","Darwin","Hobart","Sydney","Melbourne","Perth"])
+        self.col.add_column("City name", ["Adelaide", "Brisbane", "Darwin", "Hobart", "Sydney", "Melbourne", "Perth"])
         self.col.add_column("Area", [1295, 5905, 112, 1357, 2058, 1566, 5386])
         self.col.add_column("Population", [1158259, 1857594, 120900, 205556, 4336374, 3806092, 1554769])
-        self.col.add_column("Annual Rainfall",[600.5, 1146.4, 1714.7, 619.5, 1214.8, 646.9, 869.4])
+        self.col.add_column("Annual Rainfall", [600.5, 1146.4, 1714.7, 619.5, 1214.8, 646.9, 869.4])
 
         # A mix of both!
         self.mix = PrettyTable()
         self.mix.field_names = ["City name", "Area"]
-        self.mix.add_row(["Adelaide",1295])
-        self.mix.add_row(["Brisbane",5905])
+        self.mix.add_row(["Adelaide", 1295])
+        self.mix.add_row(["Brisbane", 5905])
         self.mix.add_row(["Darwin", 112])
         self.mix.add_row(["Hobart", 1357])
         self.mix.add_row(["Sydney", 2058])
         self.mix.add_row(["Melbourne", 1566])
         self.mix.add_row(["Perth", 5386])
         self.mix.add_column("Population", [1158259, 1857594, 120900, 205556, 4336374, 3806092, 1554769])
-        self.mix.add_column("Annual Rainfall",[600.5, 1146.4, 1714.7, 619.5, 1214.8, 646.9, 869.4])
+        self.mix.add_column("Annual Rainfall", [600.5, 1146.4, 1714.7, 619.5, 1214.8, 646.9, 869.4])
 
     def testRowColEquivalenceASCII(self):
-
         self.assertEqual(self.row.get_string(), self.col.get_string())
 
     def testRowMixEquivalenceASCII(self):
-
         self.assertEqual(self.row.get_string(), self.mix.get_string())
 
     def testRowColEquivalenceHTML(self):
-
         self.assertEqual(self.row.get_html_string(), self.col.get_html_string())
 
     def testRowMixEquivalenceHTML(self):
-
         self.assertEqual(self.row.get_html_string(), self.mix.get_html_string())
 
-#class FieldnamelessTableTest(unittest.TestCase):
+
+# class FieldnamelessTableTest(unittest.TestCase):
 #
 #    """Make sure that building and stringing a table with no fieldnames works fine"""
 #
@@ -93,23 +88,22 @@ class BuildEquivelanceTest(unittest.TestCase):
 #        self.x.field_names = ["City name", "Area", "Population", "Annual Rainfall"]
 #        self.x.get_string()
 
-class CityDataTest(unittest.TestCase):
 
+class CityDataTest(unittest.TestCase):
     """Just build the Australian capital city data example table."""
 
     def setUp(self):
-
         self.x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"])
-        self.x.add_row(["Adelaide",1295, 1158259, 600.5])
-        self.x.add_row(["Brisbane",5905, 1857594, 1146.4])
+        self.x.add_row(["Adelaide", 1295, 1158259, 600.5])
+        self.x.add_row(["Brisbane", 5905, 1857594, 1146.4])
         self.x.add_row(["Darwin", 112, 120900, 1714.7])
         self.x.add_row(["Hobart", 1357, 205556, 619.5])
         self.x.add_row(["Sydney", 2058, 4336374, 1214.8])
         self.x.add_row(["Melbourne", 1566, 3806092, 646.9])
         self.x.add_row(["Perth", 5386, 1554769, 869.4])
 
-class OptionOverrideTests(CityDataTest):
 
+class OptionOverrideTests(CityDataTest):
     """Make sure all options are properly overwritten by get_string."""
 
     def testBorder(self):
@@ -128,13 +122,12 @@ class OptionOverrideTests(CityDataTest):
         self.assertTrue(default != override)
 
     def testHrulesNone(self):
-
         default = self.x.get_string()
         override = self.x.get_string(hrules=NONE)
         self.assertTrue(default != override)
 
-class OptionAttributeTests(CityDataTest):
 
+class OptionAttributeTests(CityDataTest):
     """Make sure all options which have an attribute interface work as they should.
     Also make sure option settings are copied correctly when a table is cloned by
     slicing."""
@@ -159,7 +152,7 @@ class OptionAttributeTests(CityDataTest):
         self.x.horizontal_char = "~"
         self.x.junction_char = "*"
         self.x.format = True
-        self.x.attributes = {"class" : "prettytable"}
+        self.x.attributes = {"class": "prettytable"}
         assert self.x.get_string() == self.x[:].get_string()
 
     def testSetForOneColumn(self):
@@ -169,12 +162,11 @@ class OptionAttributeTests(CityDataTest):
         self.x.float_format["Area"] = "2.2"
         assert self.x.get_string() == self.x[:].get_string()
 
-class BasicTests(CityDataTest):
 
+class BasicTests(CityDataTest):
     """Some very basic tests."""
 
     def testNoBlankLines(self):
-
         """No table should ever have blank lines in it."""
 
         string = self.x.get_string()
@@ -182,49 +174,56 @@ class BasicTests(CityDataTest):
         self.assertTrue("" not in lines)
 
     def testAllLengthsEqual(self):
-
         """All lines in a table should be of the same length."""
 
         string = self.x.get_string()
         lines = string.split("\n")
         lengths = [len(line) for line in lines]
         lengths = set(lengths)
-        self.assertEqual(len(lengths),1)
+        self.assertEqual(len(lengths), 1)
+
+
+class TitleBasicTests(BasicTests):
+    """Run the basic tests with a title"""
+
+    def setUp(self):
+        BasicTests.setUp(self)
+        self.x.title = "My table"
+
 
 class NoBorderBasicTests(BasicTests):
-
     """Run the basic tests with border = False"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.border = False
 
-class NoHeaderBasicTests(BasicTests):
 
+class NoHeaderBasicTests(BasicTests):
     """Run the basic tests with header = False"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.header = False
 
-class HrulesNoneBasicTests(BasicTests):
 
+class HrulesNoneBasicTests(BasicTests):
     """Run the basic tests with hrules = NONE"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.hrules = NONE
 
-class HrulesAllBasicTests(BasicTests):
 
+class HrulesAllBasicTests(BasicTests):
     """Run the basic tests with hrules = ALL"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.hrules = ALL
 
-class EmptyTableTests(CityDataTest):
 
+class EmptyTableTests(CityDataTest):
     """Make sure the print_empty option works"""
 
     def setUp(self):
@@ -242,16 +241,17 @@ class EmptyTableTests(CityDataTest):
 
     def testInteractionWithBorder(self):
         assert self.y.get_string(border=False, print_empty=True) == ""
-class PresetBasicTests(BasicTests):
 
+
+class PresetBasicTests(BasicTests):
     """Run the basic tests after using set_style"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.set_style(MSWORD_FRIENDLY)
 
-class SlicingTests(CityDataTest):
 
+class SlicingTests(CityDataTest):
     def setUp(self):
         CityDataTest.setUp(self)
 
@@ -277,8 +277,8 @@ class SlicingTests(CityDataTest):
         assert "Melbourne" in string
         assert "Perth" in string
 
-class SortingTests(CityDataTest):
 
+class SortingTests(CityDataTest):
     def setUp(self):
         CityDataTest.setUp(self)
 
@@ -297,7 +297,7 @@ class SortingTests(CityDataTest):
             forward = self.x.get_string()
             self.x.reversesort = True
             backward = self.x.get_string()
-            forward_lines = forward.split("\n")[2:] # Discard header lines
+            forward_lines = forward.split("\n")[2:]  # Discard header lines
             backward_lines = backward.split("\n")[2:]
             backward_lines.reverse()
             assert forward_lines == backward_lines
@@ -307,6 +307,7 @@ class SortingTests(CityDataTest):
         def key(vals):
             vals[0] = len(vals[0])
             return vals
+
         self.x.sortby = "City name"
         self.x.sort_key = key
         assert self.x.get_string().strip() == """+-----------+------+------------+-----------------+
@@ -322,29 +323,41 @@ class SortingTests(CityDataTest):
 +-----------+------+------------+-----------------+
 """.strip()
 
-class IntegerFormatBasicTests(BasicTests):
+    def testSortSlice(self):
+        """Make sure sorting and slicing interact in the expected way"""
+        x = PrettyTable(["Foo"])
+        for i in range(20, 0, -1):
+            x.add_row([i])
+        newstyle = x.get_string(sortby="Foo", end=10)
+        assert "10" in newstyle
+        assert "20" not in newstyle
+        oldstyle = x.get_string(sortby="Foo", end=10, oldsortslice=True)
+        assert "10" not in oldstyle
+        assert "20" in oldstyle
 
+
+class IntegerFormatBasicTests(BasicTests):
     """Run the basic tests after setting an integer format string"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.int_format = "04"
 
-class FloatFormatBasicTests(BasicTests):
 
+class FloatFormatBasicTests(BasicTests):
     """Run the basic tests after setting a float format string"""
 
     def setUp(self):
         BasicTests.setUp(self)
         self.x.float_format = "6.2f"
 
-class FloatFormatTests(unittest.TestCase):
 
+class FloatFormatTests(unittest.TestCase):
     def setUp(self):
         self.x = PrettyTable(["Constant", "Value"])
-        self.x.add_row(["Pi", pi]) 
-        self.x.add_row(["e", e]) 
-        self.x.add_row(["sqrt(2)", sqrt(2)]) 
+        self.x.add_row(["Pi", pi])
+        self.x.add_row(["e", e])
+        self.x.add_row(["sqrt(2)", sqrt(2)])
 
     def testNoDecimals(self):
         self.x.float_format = ".0f"
@@ -356,9 +369,9 @@ class FloatFormatTests(unittest.TestCase):
         string = self.x.get_string()
         assert "3.14159" in string
         assert "3.141592" not in string
-        assert "2.71828" in string 
-        assert "2.718281" not in string 
-        assert "2.718282" not in string 
+        assert "2.71828" in string
+        assert "2.718281" not in string
+        assert "2.718282" not in string
         assert "1.41421" in string
         assert "1.414213" not in string
 
@@ -368,6 +381,7 @@ class FloatFormatTests(unittest.TestCase):
         assert "003.14" in string
         assert "002.72" in string
         assert "001.41" in string
+
 
 class BreakLineTests(unittest.TestCase):
     def testAsciiBreakLine(self):
@@ -428,23 +442,74 @@ class BreakLineTests(unittest.TestCase):
         result = t.get_html_string(hrules=ALL)
         assert result.strip() == """
 <table>
-    <tr>
-        <th>Field 1</th>
-        <th>Field 2</th>
-    </tr>
-    <tr>
-        <td>value 1</td>
-        <td>value2<br>second line</td>
-    </tr>
-    <tr>
-        <td>value 3</td>
-        <td>value4</td>
-    </tr>
+    <thead>
+        <tr>
+            <th>Field 1</th>
+            <th>Field 2</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>value 1</td>
+            <td>value2<br>second line</td>
+        </tr>
+        <tr>
+            <td>value 3</td>
+            <td>value4</td>
+        </tr>
+    </tbody>
 </table>
 """.strip()
 
-class HtmlOutputTests(unittest.TestCase):
 
+class MaxMaxWidthsTests(unittest.TestCase):
+    def testMaxTableWidthIsTheLaw(self):
+        max_width = 127
+        t = PrettyTable(max_table_width=max_width)
+        t.field_names = ['tag', 'versions']
+
+        versions = [
+            'python/django-appconf:1.0.1',
+            'python/django-braces:1.8.1',
+            'python/django-compressor:2.0',
+            'python/django-debug-toolbar:1.4',
+            'python/django-extensions:1.6.1',
+        ]
+        t.add_row(['allmychanges.com', ', '.join(versions)])
+        result = t.get_string(hrules=ALL)
+        lines = result.strip().split('\n')
+
+        for line in lines:
+            line_length = len(line)
+            self.assertEqual(line_length, max_width)
+
+
+    def testMaxTableWidthIsTheLawWhenMinColumnWidthSetForSomeColumns(self):
+        max_width = 40
+        t = PrettyTable(max_table_width=max_width)
+        t.field_names = ['tag', 'versions']
+        versions = [
+            'python/django-appconf:1.0.1',
+            'python/django-braces:1.8.1',
+            'python/django-compressor:2.0',
+            'python/django-debug-toolbar:1.4',
+            'python/django-extensions:1.6.1',
+        ]
+        t.add_row(['allmychanges.com', ', '.join(versions)])
+
+        # Now, we'll set min width for first column
+        # to not wrap it's content
+        t._min_width['tag'] = len('allmychanges.com')
+
+        result = t.get_string(hrules=ALL)
+        lines = result.strip().split('\n')
+
+        for line in lines:
+            line_length = len(line)
+            self.assertEqual(line_length, max_width)
+
+
+class HtmlOutputTests(unittest.TestCase):
     def testHtmlOutput(self):
         t = PrettyTable(['Field 1', 'Field 2', 'Field 3'])
         t.add_row(['value 1', 'value2', 'value3'])
@@ -453,26 +518,30 @@ class HtmlOutputTests(unittest.TestCase):
         result = t.get_html_string()
         assert result.strip() == """
 <table>
-    <tr>
-        <th>Field 1</th>
-        <th>Field 2</th>
-        <th>Field 3</th>
-    </tr>
-    <tr>
-        <td>value 1</td>
-        <td>value2</td>
-        <td>value3</td>
-    </tr>
-    <tr>
-        <td>value 4</td>
-        <td>value5</td>
-        <td>value6</td>
-    </tr>
-    <tr>
-        <td>value 7</td>
-        <td>value8</td>
-        <td>value9</td>
-    </tr>
+    <thead>
+        <tr>
+            <th>Field 1</th>
+            <th>Field 2</th>
+            <th>Field 3</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>value 1</td>
+            <td>value2</td>
+            <td>value3</td>
+        </tr>
+        <tr>
+            <td>value 4</td>
+            <td>value5</td>
+            <td>value6</td>
+        </tr>
+        <tr>
+            <td>value 7</td>
+            <td>value8</td>
+            <td>value9</td>
+        </tr>
+    </tbody>
 </table>
 """.strip()
 
@@ -484,33 +553,36 @@ class HtmlOutputTests(unittest.TestCase):
         result = t.get_html_string(format=True)
         assert result.strip() == """
 <table frame="box" rules="cols">
-    <tr>
-        <th style="padding-left: 1em; padding-right: 1em; text-align: center">Field 1</th>
-        <th style="padding-left: 1em; padding-right: 1em; text-align: center">Field 2</th>
-        <th style="padding-left: 1em; padding-right: 1em; text-align: center">Field 3</th>
-    </tr>
-    <tr>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value 1</td>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value2</td>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value3</td>
-    </tr>
-    <tr>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value 4</td>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value5</td>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value6</td>
-    </tr>
-    <tr>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value 7</td>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value8</td>
-        <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value9</td>
-    </tr>
+    <thead>
+        <tr>
+            <th style="padding-left: 1em; padding-right: 1em; text-align: center">Field 1</th>
+            <th style="padding-left: 1em; padding-right: 1em; text-align: center">Field 2</th>
+            <th style="padding-left: 1em; padding-right: 1em; text-align: center">Field 3</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value 1</td>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value2</td>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value3</td>
+        </tr>
+        <tr>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value 4</td>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value5</td>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value6</td>
+        </tr>
+        <tr>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value 7</td>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value8</td>
+            <td style="padding-left: 1em; padding-right: 1em; text-align: center; vertical-align: top">value9</td>
+        </tr>
+    </tbody>
 </table>
 """.strip()
 
+
 class CsvConstructorTest(BasicTests):
-
     def setUp(self):
-
         csv_string = """City name, Area , Population , Annual Rainfall
         Sydney, 2058 ,  4336374   ,      1214.8
         Melbourne, 1566 ,  3806092   ,       646.9
@@ -522,9 +594,9 @@ class CsvConstructorTest(BasicTests):
         csv_fp = StringIO.StringIO(csv_string)
         self.x = from_csv(csv_fp)
 
+
 if _have_sqlite:
     class DatabaseConstructorTest(BasicTests):
-
         def setUp(self):
             self.conn = sqlite3.connect(":memory:")
             self.cur = self.conn.cursor()
@@ -543,8 +615,8 @@ if _have_sqlite:
             self.cur.execute("INSERT INTO cities VALUES (\"Adelaide\", 1295, 1158259, 600.5)")
             assert from_db_cursor(self.cur) is None
 
-class HtmlConstructorTest(CityDataTest):
 
+class HtmlConstructorTest(CityDataTest):
     def testHtmlAndBack(self):
         html_string = self.x.get_html_string()
         new_table = from_html(html_string)[0]
@@ -560,16 +632,58 @@ class HtmlConstructorTest(CityDataTest):
         html_string += self.x.get_html_string()
         self.assertRaises(Exception, from_html_one, html_string)
 
-class PrintEnglishTest(CityDataTest):
 
-    def testPrint(self):
+class PrintEnglishTest(CityDataTest):
+    def setUp(self):
+        x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"])
+        x.title = "Australian capital cities"
+        x.sortby = "Population"
+        x.reversesort = True
+        x.int_format["Area"] = "04"
+        x.float_format = "6.1"
+        x.align["City name"] = "l"  # Left align city names
+        x.add_row(["Adelaide", 1295, 1158259, 600.5])
+        x.add_row(["Brisbane", 5905, 1857594, 1146.4])
+        x.add_row(["Darwin", 112, 120900, 1714.7])
+        x.add_row(["Hobart", 1357, 205556, 619.5])
+        x.add_row(["Sydney", 2058, 4336374, 1214.8])
+        x.add_row(["Melbourne", 1566, 3806092, 646.9])
+        x.add_row(["Perth", 5386, 1554769, 869.4])
+        self.x = x
+
+        y = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"],
+                        title="Australian capital cities",
+                        sortby="Population",
+                        reversesort=True,
+                        int_format="04",
+                        float_format="6.1",
+                        max_width=12,
+                        min_width=4,
+                        align="c",
+                        valign="t")
+        y.align["City name"] = "l"  # Left align city names
+        y.add_row(["Adelaide", 1295, 1158259, 600.5])
+        y.add_row(["Brisbane", 5905, 1857594, 1146.4])
+        y.add_row(["Darwin", 112, 120900, 1714.7])
+        y.add_row(["Hobart", 1357, 205556, 619.5])
+        y.add_row(["Sydney", 2058, 4336374, 1214.8])
+        y.add_row(["Melbourne", 1566, 3806092, 646.9])
+        y.add_row(["Perth", 5386, 1554769, 869.4])
+        self.y = y
+
+    def test_h_print(self):
         print()
+        print("Generated using setters:")
         print(self.x)
 
-class PrintJapanestTest(unittest.TestCase):
+    def test_v_print(self):
+        print()
+        print("Generated using constructor arguments:")
+        print(self.y)
 
+
+class PrintJapaneseTest(unittest.TestCase):
     def setUp(self):
-
         self.x = PrettyTable(["Kanji", "Hiragana", "English"])
         self.x.add_row(["神戸", "こうべ", "Kobe"])
         self.x.add_row(["京都", "きょうと", "Kyoto"])
@@ -583,6 +697,35 @@ class PrintJapanestTest(unittest.TestCase):
     def testPrint(self):
         print()
         print(self.x)
+
+
+class UnpaddedTableTest(unittest.TestCase):
+    def setUp(self):
+        self.x = PrettyTable(header=False, padding_width=0)
+        self.x.add_row("abc")
+        self.x.add_row("def")
+        self.x.add_row("g..")
+
+    def testUnbordered(self):
+        self.x.border = False
+        result = self.x.get_string()
+        self.assertEqual(result.strip(), """
+abc
+def
+g..
+""".strip())
+
+    def testBordered(self):
+        self.x.border = True
+        result = self.x.get_string()
+        self.assertEqual(result.strip(), """
++-+-+-+
+|a|b|c|
+|d|e|f|
+|g|.|.|
++-+-+-+
+""".strip())
+
 
 if __name__ == "__main__":
     unittest.main()
