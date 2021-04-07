@@ -1,2 +1,4 @@
-tar.gz: python-module-prettytable
-copy: *.patch
+tar: @version@:.
+copy?: *.patch
+diff: @version@:. .
+
