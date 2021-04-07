@@ -1,0 +1,3 @@
+[remote "upstream"]
+	url = https://github.com/jazzband/prettytable
+	fetch = +refs/heads/*:refs/remotes/upstream/*
