@@ -5,7 +5,7 @@
 %def_disable check
 
 Name: python3-module-%oname
-Version: 2.1.0
+Version: 2.2.0
 Release: alt1
 Summary: Python3 library for easily displaying tabular data in a visually appealing ASCII table format
 
@@ -57,6 +57,9 @@ tox.py3 -e py%{python_version_nodots python3} -v
 %python3_sitelibdir/*
 
 %changelog
+* Mon Apr 15 2024 Maria Alexeeva <alxvmr@altlinux.org> 2.2.0-alt1
+- release 2.2.0
+
 * Wed Apr 07 2021 Alexey Shabalin <shaba@altlinux.org> 2.1.0-alt1
 - 2.1.0
 
