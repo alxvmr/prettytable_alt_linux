@@ -55,6 +55,7 @@ MSWORD_FRIENDLY = 11
 PLAIN_COLUMNS = 12
 MARKDOWN = 13
 ORGMODE = 14
+DOUBLE_BORDER = 15
 RANDOM = 20
 
 _re = re.compile(r"\033\[[0-9;]*m")
@@ -101,6 +102,19 @@ class PrettyTable:
         vertical_char - single character string used to draw vertical lines
         horizontal_char - single character string used to draw horizontal lines
         junction_char - single character string used to draw line junctions
+        top_junction_char - single character string used to draw top line junctions
+        bottom_junction_char -
+            single character string used to draw bottom line junctions
+        right_junction_char - single character string used to draw right line junctions
+        left_junction_char - single character string used to draw left line junctions
+        top_right_junction_char -
+            single character string used to draw top-right line junctions
+        top_left_junction_char -
+            single character string used to draw top-left line junctions
+        bottom_right_junction_char -
+            single character string used to draw bottom-right line junctions
+        bottom_left_junction_char -
+            single character string used to draw bottom-left line junctions
         sortby - name of field to sort rows by
         sort_key - sorting key function, applied to data points before sorting
         align - default align for each column (None, "l", "c" or "r")
@@ -125,19 +139,48 @@ class PrettyTable:
             self._widths = []
 
         # Options
-        self._options = (
-            "title start end fields header border sortby reversesort "
-            "sort_key attributes format hrules vrules".split()
-        )
-        self._options.extend(
-            "int_format float_format min_table_width max_table_width padding_width "
-            "left_padding_width right_padding_width".split()
-        )
-        self._options.extend(
-            "vertical_char horizontal_char junction_char header_style valign xhtml "
-            "print_empty oldsortslice".split()
-        )
-        self._options.extend("align valign max_width min_width".split())
+        self._options = [
+            "title",
+            "start",
+            "end",
+            "fields",
+            "header",
+            "border",
+            "sortby",
+            "reversesort",
+            "sort_key",
+            "attributes",
+            "format",
+            "hrules",
+            "vrules",
+            "int_format",
+            "float_format",
+            "min_table_width",
+            "max_table_width",
+            "padding_width",
+            "left_padding_width",
+            "right_padding_width",
+            "vertical_char",
+            "horizontal_char",
+            "junction_char",
+            "header_style",
+            "valign",
+            "xhtml",
+            "print_empty",
+            "oldsortslice",
+            "top_junction_char",
+            "bottom_junction_char",
+            "right_junction_char",
+            "left_junction_char",
+            "top_right_junction_char",
+            "top_left_junction_char",
+            "bottom_right_junction_char",
+            "bottom_left_junction_char",
+            "align",
+            "valign",
+            "max_width",
+            "min_width",
+        ]
         for option in self._options:
             if option in kwargs:
                 self._validate_option(option, kwargs[option])
@@ -188,6 +231,14 @@ class PrettyTable:
         self._vertical_char = kwargs["vertical_char"] or "|"
         self._horizontal_char = kwargs["horizontal_char"] or "-"
         self._junction_char = kwargs["junction_char"] or "+"
+        self._top_junction_char = kwargs["top_junction_char"]
+        self._bottom_junction_char = kwargs["bottom_junction_char"]
+        self._right_junction_char = kwargs["right_junction_char"]
+        self._left_junction_char = kwargs["left_junction_char"]
+        self._top_right_junction_char = kwargs["top_right_junction_char"]
+        self._top_left_junction_char = kwargs["top_left_junction_char"]
+        self._bottom_right_junction_char = kwargs["bottom_right_junction_char"]
+        self._bottom_left_junction_char = kwargs["bottom_left_junction_char"]
 
         if kwargs["print_empty"] in (True, False):
             self._print_empty = kwargs["print_empty"]
@@ -309,7 +360,19 @@ class PrettyTable:
             self._validate_int_format(option, val)
         elif option == "float_format":
             self._validate_float_format(option, val)
-        elif option in ("vertical_char", "horizontal_char", "junction_char"):
+        elif option in (
+            "vertical_char",
+            "horizontal_char",
+            "junction_char",
+            "top_junction_char",
+            "bottom_junction_char",
+            "right_junction_char",
+            "left_junction_char",
+            "top_right_junction_char",
+            "top_left_junction_char",
+            "bottom_right_junction_char",
+            "bottom_left_junction_char",
+        ):
             self._validate_single_char(option, val)
         elif option == "attributes":
             self._validate_attributes(option, val)
@@ -336,39 +399,39 @@ class PrettyTable:
         try:
             assert len(val) == len(set(val))
         except AssertionError:
-            raise Exception("Field names must be unique!")
+            raise Exception("Field names must be unique")
 
     def _validate_header_style(self, val):
         try:
             assert val in ("cap", "title", "upper", "lower", None)
         except AssertionError:
             raise Exception(
-                "Invalid header style, use cap, title, upper, lower or None!"
+                "Invalid header style, use cap, title, upper, lower or None"
             )
 
     def _validate_align(self, val):
         try:
             assert val in ["l", "c", "r"]
         except AssertionError:
-            raise Exception(f"Alignment {val} is invalid, use l, c or r!")
+            raise Exception(f"Alignment {val} is invalid, use l, c or r")
 
     def _validate_valign(self, val):
         try:
             assert val in ["t", "m", "b", None]
         except AssertionError:
-            raise Exception(f"Alignment {val} is invalid, use t, m, b or None!")
+            raise Exception(f"Alignment {val} is invalid, use t, m, b or None")
 
     def _validate_nonnegative_int(self, name, val):
         try:
             assert int(val) >= 0
         except AssertionError:
-            raise Exception(f"Invalid value for {name}: {val}!")
+            raise Exception(f"Invalid value for {name}: {val}")
 
     def _validate_true_or_false(self, name, val):
         try:
             assert val in (True, False)
         except AssertionError:
-            raise Exception(f"Invalid value for {name}! Must be True or False.")
+            raise Exception(f"Invalid value for {name}. Must be True or False.")
 
     def _validate_int_format(self, name, val):
         if val == "":
@@ -378,7 +441,7 @@ class PrettyTable:
             assert val.isdigit()
         except AssertionError:
             raise Exception(
-                f"Invalid value for {name}! Must be an integer format string."
+                f"Invalid value for {name}. Must be an integer format string."
             )
 
     def _validate_float_format(self, name, val):
@@ -396,56 +459,66 @@ class PrettyTable:
                 or (bits[1][-1] == "f" and bits[1].rstrip("f").isdigit())
             )
         except AssertionError:
-            raise Exception(f"Invalid value for {name}! Must be a float format string.")
+            raise Exception(f"Invalid value for {name}. Must be a float format string.")
 
     def _validate_function(self, name, val):
         try:
             assert hasattr(val, "__call__")
         except AssertionError:
-            raise Exception(f"Invalid value for {name}! Must be a function.")
+            raise Exception(f"Invalid value for {name}. Must be a function.")
 
     def _validate_hrules(self, name, val):
         try:
             assert val in (ALL, FRAME, HEADER, NONE)
         except AssertionError:
             raise Exception(
-                f"Invalid value for {name}! Must be ALL, FRAME, HEADER or NONE."
+                f"Invalid value for {name}. Must be ALL, FRAME, HEADER or NONE."
             )
 
     def _validate_vrules(self, name, val):
         try:
             assert val in (ALL, FRAME, NONE)
         except AssertionError:
-            raise Exception(f"Invalid value for {name}! Must be ALL, FRAME, or NONE.")
+            raise Exception(f"Invalid value for {name}. Must be ALL, FRAME, or NONE.")
 
     def _validate_field_name(self, name, val):
         try:
             assert (val in self._field_names) or (val is None)
         except AssertionError:
-            raise Exception(f"Invalid field name: {val}!")
+            raise Exception(f"Invalid field name: {val}")
 
     def _validate_all_field_names(self, name, val):
         try:
             for x in val:
                 self._validate_field_name(name, x)
         except AssertionError:
-            raise Exception("fields must be a sequence of field names!")
+            raise Exception("Fields must be a sequence of field names")
 
     def _validate_single_char(self, name, val):
         try:
             assert _str_block_width(val) == 1
         except AssertionError:
-            raise Exception(f"Invalid value for {name}! Must be a string of length 1.")
+            raise Exception(f"Invalid value for {name}. Must be a string of length 1.")
 
     def _validate_attributes(self, name, val):
         try:
             assert isinstance(val, dict)
         except AssertionError:
-            raise Exception("attributes must be a dictionary of name/value pairs!")
+            raise Exception("Attributes must be a dictionary of name/value pairs")
 
     ##############################
     # ATTRIBUTE MANAGEMENT       #
     ##############################
+
+    @property
+    def xhtml(self):
+        """Print <br/> tags if True, <br> tags if False"""
+        return self._xhtml
+
+    @xhtml.setter
+    def xhtml(self, val):
+        self._validate_option("xhtml", val)
+        self._xhtml = val
 
     @property
     def field_names(self):
@@ -857,8 +930,137 @@ class PrettyTable:
     @junction_char.setter
     def junction_char(self, val):
         val = str(val)
-        self._validate_option("vertical_char", val)
+        self._validate_option("junction_char", val)
         self._junction_char = val
+
+    @property
+    def top_junction_char(self):
+        """The character used when printing table borders to draw top line junctions
+
+        Arguments:
+
+        top_junction_char - single character string used to draw top line junctions"""
+        return self._top_junction_char or self.junction_char
+
+    @top_junction_char.setter
+    def top_junction_char(self, val):
+        val = str(val)
+        self._validate_option("top_junction_char", val)
+        self._top_junction_char = val
+
+    @property
+    def bottom_junction_char(self):
+        """The character used when printing table borders to draw bottom line junctions
+
+        Arguments:
+
+        bottom_junction_char -
+            single character string used to draw bottom line junctions"""
+        return self._bottom_junction_char or self.junction_char
+
+    @bottom_junction_char.setter
+    def bottom_junction_char(self, val):
+        val = str(val)
+        self._validate_option("bottom_junction_char", val)
+        self._bottom_junction_char = val
+
+    @property
+    def right_junction_char(self):
+        """The character used when printing table borders to draw right line junctions
+
+        Arguments:
+
+        right_junction_char -
+            single character string used to draw right line junctions"""
+        return self._right_junction_char or self.junction_char
+
+    @right_junction_char.setter
+    def right_junction_char(self, val):
+        val = str(val)
+        self._validate_option("right_junction_char", val)
+        self._right_junction_char = val
+
+    @property
+    def left_junction_char(self):
+        """The character used when printing table borders to draw left line junctions
+
+        Arguments:
+
+        left_junction_char - single character string used to draw left line junctions"""
+        return self._left_junction_char or self.junction_char
+
+    @left_junction_char.setter
+    def left_junction_char(self, val):
+        val = str(val)
+        self._validate_option("left_junction_char", val)
+        self._left_junction_char = val
+
+    @property
+    def top_right_junction_char(self):
+        """The character used when printing table borders to draw top-right line junctions
+
+        Arguments:
+
+        top_right_junction_char -
+            single character string used to draw top-right line junctions"""
+        return self._top_right_junction_char or self.junction_char
+
+    @top_right_junction_char.setter
+    def top_right_junction_char(self, val):
+        val = str(val)
+        self._validate_option("top_right_junction_char", val)
+        self._top_right_junction_char = val
+
+    @property
+    def top_left_junction_char(self):
+        """
+        The character used when printing table borders to draw top-left line junctions
+
+        Arguments:
+
+        top_left_junction_char -
+            single character string used to draw top-left line junctions"""
+        return self._top_left_junction_char or self.junction_char
+
+    @top_left_junction_char.setter
+    def top_left_junction_char(self, val):
+        val = str(val)
+        self._validate_option("top_left_junction_char", val)
+        self._top_left_junction_char = val
+
+    @property
+    def bottom_right_junction_char(self):
+        """The character used when printing table borders
+           to draw bottom-right line junctions
+
+        Arguments:
+
+        bottom_right_junction_char -
+            single character string used to draw bottom-right line junctions"""
+        return self._bottom_right_junction_char or self.junction_char
+
+    @bottom_right_junction_char.setter
+    def bottom_right_junction_char(self, val):
+        val = str(val)
+        self._validate_option("bottom_right_junction_char", val)
+        self._bottom_right_junction_char = val
+
+    @property
+    def bottom_left_junction_char(self):
+        """The character used when printing table borders
+           to draw bottom-left line junctions
+
+        Arguments:
+
+        bottom_left_junction_char -
+            single character string used to draw bottom-left line junctions"""
+        return self._bottom_left_junction_char or self.junction_char
+
+    @bottom_left_junction_char.setter
+    def bottom_left_junction_char(self, val):
+        val = str(val)
+        self._validate_option("bottom_left_junction_char", val)
+        self._bottom_left_junction_char = val
 
     @property
     def format(self):
@@ -906,7 +1108,7 @@ class PrettyTable:
 
     @property
     def oldsortslice(self):
-        """ oldsortslice - Slice rows before sorting in the "old style" """
+        """oldsortslice - Slice rows before sorting in the "old style" """
         return self._oldsortslice
 
     @oldsortslice.setter
@@ -926,7 +1128,7 @@ class PrettyTable:
                 self._validate_option(option, kwargs[option])
                 options[option] = kwargs[option]
             else:
-                options[option] = getattr(self, "_" + option)
+                options[option] = getattr(self, option)
         return options
 
     ##############################
@@ -945,10 +1147,12 @@ class PrettyTable:
             self._set_markdown_style()
         elif style == ORGMODE:
             self._set_orgmode_style()
+        elif style == DOUBLE_BORDER:
+            self._set_double_border_style()
         elif style == RANDOM:
             self._set_random_style()
         else:
-            raise Exception("Invalid pre-set style!")
+            raise Exception("Invalid pre-set style")
 
     def _set_orgmode_style(self):
         self._set_default_style()
@@ -976,6 +1180,14 @@ class PrettyTable:
         self.vertical_char = "|"
         self.horizontal_char = "-"
         self.junction_char = "+"
+        self._top_junction_char = None
+        self._bottom_junction_char = None
+        self._right_junction_char = None
+        self._left_junction_char = None
+        self._top_right_junction_char = None
+        self._top_left_junction_char = None
+        self._bottom_right_junction_char = None
+        self._bottom_left_junction_char = None
 
     def _set_msword_style(self):
 
@@ -994,6 +1206,19 @@ class PrettyTable:
         self.padding_width = 1
         self.left_padding_width = 0
         self.right_padding_width = 8
+
+    def _set_double_border_style(self):
+        self.horizontal_char = "═"
+        self.vertical_char = "║"
+        self.junction_char = "╬"
+        self.top_junction_char = "╦"
+        self.bottom_junction_char = "╩"
+        self.right_junction_char = "╣"
+        self.left_junction_char = "╠"
+        self.top_right_junction_char = "╗"
+        self.top_left_junction_char = "╔"
+        self.bottom_right_junction_char = "╝"
+        self.bottom_left_junction_char = "╚"
 
     def _set_random_style(self):
 
@@ -1052,7 +1277,7 @@ class PrettyTable:
         if row_index > len(self._rows) - 1:
             raise Exception(
                 f"Can't delete row at index {row_index}, "
-                f"table only has {len(self._rows)} rows!"
+                f"table only has {len(self._rows)} rows"
             )
         del self._rows[row_index]
 
@@ -1083,8 +1308,18 @@ class PrettyTable:
         else:
             raise Exception(
                 f"Column length {len(column)} does not match number of rows "
-                f"{len(self._rows)}!"
+                f"{len(self._rows)}"
             )
+
+    def add_autoindex(self, fieldname="Index"):
+        """Add an auto-incrementing index column to the table.
+        Arguments:
+        fieldname - name of the field to contain the new column of data"""
+        self._field_names.insert(0, fieldname)
+        self._align[fieldname] = self.align
+        self._valign[fieldname] = self.valign
+        for i, row in enumerate(self._rows):
+            row.insert(0, i + 1)
 
     def del_column(self, fieldname):
 
@@ -1276,6 +1511,20 @@ class PrettyTable:
         vertical_char - single character string used to draw vertical lines
         horizontal_char - single character string used to draw horizontal lines
         junction_char - single character string used to draw line junctions
+        junction_char - single character string used to draw line junctions
+        top_junction_char - single character string used to draw top line junctions
+        bottom_junction_char -
+            single character string used to draw bottom line junctions
+        right_junction_char - single character string used to draw right line junctions
+        left_junction_char - single character string used to draw left line junctions
+        top_right_junction_char -
+            single character string used to draw top-right line junctions
+        top_left_junction_char -
+            single character string used to draw top-left line junctions
+        bottom_right_junction_char -
+            single character string used to draw bottom-right line junctions
+        bottom_left_junction_char -
+            single character string used to draw bottom-left line junctions
         sortby - name of field to sort rows by
         sort_key - sorting key function, applied to data points before sorting
         reversesort - True or False to sort in descending or ascending order
@@ -1310,15 +1559,27 @@ class PrettyTable:
         if options["header"]:
             lines.append(self._stringify_header(options))
         elif options["border"] and options["hrules"] in (ALL, FRAME):
-            lines.append(self._hrule)
+            lines.append(self._stringify_hrule(options, where="top_"))
+            if title and options["vrules"] in (ALL, FRAME):
+                lines[-1] = (
+                    self.left_junction_char + lines[-1][1:-1] + self.right_junction_char
+                )
 
         # Add rows
-        for row in formatted_rows:
-            lines.append(self._stringify_row(row, options))
+        for row in formatted_rows[:-1]:
+            lines.append(self._stringify_row(row, options, self._hrule))
+        if formatted_rows:
+            lines.append(
+                self._stringify_row(
+                    formatted_rows[-1],
+                    options,
+                    self._stringify_hrule(options, where="bottom_"),
+                )
+            )
 
         # Add bottom of border
         if options["border"] and options["hrules"] == FRAME:
-            lines.append(self._hrule)
+            lines.append(self._stringify_hrule(options, where="bottom_"))
 
         if "orgmode" in self.__dict__ and self.orgmode is True:
             tmp = list()
@@ -1328,30 +1589,30 @@ class PrettyTable:
 
         return "\n".join(lines)
 
-    def _stringify_hrule(self, options):
+    def _stringify_hrule(self, options, where=""):
 
         if not options["border"]:
             return ""
         lpad, rpad = self._get_padding_widths(options)
         if options["vrules"] in (ALL, FRAME):
-            bits = [options["junction_char"]]
+            bits = [options[where + "left_junction_char"]]
         else:
             bits = [options["horizontal_char"]]
         # For tables with no data or fieldnames
         if not self._field_names:
-            bits.append(options["junction_char"])
+            bits.append(options[where + "right_junction_char"])
             return "".join(bits)
         for field, width in zip(self._field_names, self._widths):
             if options["fields"] and field not in options["fields"]:
                 continue
             bits.append((width + lpad + rpad) * options["horizontal_char"])
             if options["vrules"] == ALL:
-                bits.append(options["junction_char"])
+                bits.append(options[where + "junction_char"])
             else:
                 bits.append(options["horizontal_char"])
-        if options["vrules"] == FRAME:
+        if options["vrules"] in (ALL, FRAME):
             bits.pop()
-            bits.append(options["junction_char"])
+            bits.append(options[where + "right_junction_char"])
         return "".join(bits)
 
     def _stringify_title(self, title, options):
@@ -1361,10 +1622,10 @@ class PrettyTable:
         if options["border"]:
             if options["vrules"] == ALL:
                 options["vrules"] = FRAME
-                lines.append(self._stringify_hrule(options))
+                lines.append(self._stringify_hrule(options, "top_"))
                 options["vrules"] = ALL
             elif options["vrules"] == FRAME:
-                lines.append(self._stringify_hrule(options))
+                lines.append(self._stringify_hrule(options, "top_"))
         bits = []
         endpoint = (
             options["vertical_char"] if options["vrules"] in (ALL, FRAME) else " "
@@ -1382,7 +1643,13 @@ class PrettyTable:
         lpad, rpad = self._get_padding_widths(options)
         if options["border"]:
             if options["hrules"] in (ALL, FRAME):
-                bits.append(self._hrule)
+                bits.append(self._stringify_hrule(options, "top_"))
+                if options["title"] and options["vrules"] in (ALL, FRAME):
+                    bits[-1] = (
+                        self.left_junction_char
+                        + bits[-1][1:-1]
+                        + self.right_junction_char
+                    )
                 bits.append("\n")
             if options["vrules"] in (ALL, FRAME):
                 bits.append(options["vertical_char"])
@@ -1427,7 +1694,7 @@ class PrettyTable:
             bits.append(self._hrule)
         return "".join(bits)
 
-    def _stringify_row(self, row, options):
+    def _stringify_row(self, row, options, hrule):
 
         for (index, field, value, width) in zip(
             range(0, len(row)), self._field_names, row, self._widths
@@ -1502,7 +1769,7 @@ class PrettyTable:
 
         if options["border"] and options["hrules"] == ALL:
             bits[row_height - 1].append("\n")
-            bits[row_height - 1].append(self._hrule)
+            bits[row_height - 1].append(hrule)
 
         for y in range(0, row_height):
             bits[y] = "".join(bits[y])
@@ -1610,7 +1877,7 @@ class PrettyTable:
             <table> tag
         format - Controls whether or not HTML tables are formatted to match
             styling options (True or False)
-        xhtml - print <br/> tags if True, <br> tags if false"""
+        xhtml - print <br/> tags if True, <br> tags if False"""
 
         options = self._get_options(kwargs)
 
@@ -1934,6 +2201,6 @@ def from_html_one(html_code, **kwargs):
         assert len(tables) == 1
     except AssertionError:
         raise Exception(
-            "More than one <table> in provided HTML code!  Use from_html instead."
+            "More than one <table> in provided HTML code. Use from_html instead."
         )
     return tables[0]
